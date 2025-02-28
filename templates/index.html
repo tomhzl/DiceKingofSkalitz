@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dice</title>
+</head>
+<body>
+    <div style="display: flex;flex-direction: column;width: 20%;">
+        <input type="text" id="name" placeholder="请输入您的名字">
+        <button>Start</button>
+    </div>
+    
+    <script>
+        document.querySelector('button').addEventListener('click', function() {
+            window.location.href = '/play?name=' + document.querySelector('#name').value;
+        });
+    </script>
+</body>
+</html>

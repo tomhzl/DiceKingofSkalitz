@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Play</title>
+</head>
+<body>
+    <div style="display: flex;flex-direction: column;">
+        <div>
+            <button id="0" onclick="select_dice(0)"></button>
+            <button id="1" onclick="select_dice(1)"></button>
+            <button id="2" onclick="select_dice(2)"></button>
+            <button id="3" onclick="select_dice(3)"></button>
+            <button id="4" onclick="select_dice(4)"></button>
+            <button id="5" onclick="select_dice(5)"></button>
+            <button onclick="select()">Select</button>
+            <button onclick="stop()">Stop</button>
+        </div>
+        <div style="display: flex;flex-direction:row ;">
+            score:
+            <div id="score">0</div>
+        </div>
+        <div style="display: flex;flex-direction:row ;">
+            turn score:
+            <div id="turn_score">0</div>
+        </div>
+        <div style="display: flex;flex-direction:row ;">
+            opponent score:
+            <div id="opponent_score">0</div>
+        </div>
+        <div style="display: flex;flex-direction:row ;">
+            opponent turn score:
+            <div id="opponent_turn_score">0</div>
+        </div>
+        <div id="opponent_dices" style="display: flex;flex-direction: column;"></div>
+    </div>
+    
+    <script>
+        var name = window.location.search.substring(1).split('=')[1];
+        var selected = [];
+        var index = []
+        function reset_dices(){
+            selected.forEach(element => {
+                document.getElementById(element).textContent = "#"
+                document.getElementById(element).style.backgroundColor = "white";
+            });
+        }
+        function reset_page(){
+            reset_dices();
+            document.getElementById("score").textContent = 0;
+            document.getElementById("turn_score").textContent = 0;
+            document.getElementById("opponent_score").textContent = 0;
+            document.getElementById("opponent_turn_score").textContent = 0;
+            document.getElementById("opponent_dices").innerHTML = "";
+            roll()
+        }
+        function roll() {
+            fetch('http://localhost:5000/roll?name=' + name)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if(!data['live']){
+                    alert("No dices to select!")
+                    document.getElementById("turn_score").textContent = 0;
+                    display_opponent(data["opponent_turn"]);
+                    if("result" in data && data["result"] == "Lose"){
+                        alert("You lose!");
+                    }
+                    else{
+                        reset_dices();
+                        roll();
+                    }
+                    
+                }
+                for(const id in data["dices"]){
+                    document.getElementById(id).textContent = data["dices"][id];
+                }
+                
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        roll();
+        function select_dice(id){
+            var temp = document.getElementById(id).textContent;
+            if(temp == "#"){
+                return;
+            }
+            if(selected.includes(id)){
+                selected.splice(selected.indexOf(id),1);
+                document.getElementById(id).style.backgroundColor = "white";
+            }else{
+                selected.push(id);
+                document.getElementById(id).style.backgroundColor = "red";
+            }
+            console.log(selected);
+        }
+        function select(){
+            fetch('http://localhost:5000/select?name=' + name,{
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    selected: selected
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data['valid']){
+                    if(!data['reset_all_dices']){
+                        reset_dices()
+                    }
+                    else{
+                        selected.forEach(element => {
+                            document.getElementById(element).style.backgroundColor = "white";
+                        });
+                    }
+                    var turn_score = parseInt(document.getElementById("turn_score").textContent);
+                    document.getElementById("turn_score").textContent = turn_score+data['turn_score'];
+                    selected = [];
+                    roll();
+                    
+                }else{
+                    console.log("invalid");
+                    selected.forEach(element => {
+                        document.getElementById(element).style.backgroundColor = "white";
+                    });
+                    selected = [];
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        function stop(){
+            fetch('http://localhost:5000/stop?name=' + name,{
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    selected: selected
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data['valid']){
+                    selected.forEach(element => {
+                        console.log(element);
+                        document.getElementById(element).textContent = "#"
+                        document.getElementById(element).style.backgroundColor = "white";
+                    });
+                    var turn_score = parseInt(document.getElementById("turn_score").textContent);
+                    document.getElementById("turn_score").textContent = 0;
+                    document.getElementById("score").textContent = data['score'];
+                    selected = [];
+                    if("result" in data && data['result'] == "Win"){
+                        alert("You win!");
+                    }
+                    display_opponent(data["opponent_turn"]);
+                    if("result" in data && data['result'] == "Lose"){
+                        alert("You lose!");
+                    }
+                    else{
+                        reset_dices()
+                        roll()
+                    }
+                    
+                }else{
+                    console.log("invalid");
+                    selected.forEach(element => {
+                        document.getElementById(element).style.backgroundColor = "white";
+                    });
+                    selected = [];
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        function display_opponent(data){
+            document.getElementById("opponent_dices").innerHTML = "";
+            document.getElementById("opponent_score").textContent = data["score"];
+            document.getElementById("opponent_turn_score").textContent = data["turn_score"];
+            data["process"].forEach(element => {
+                var new_line = document.createElement("div");
+                new_line.style.display = "flex";
+                new_line.style.flexDirection = "row";
+                element["roll"].forEach(roll => {
+                    var new_dice = document.createElement("button");
+                    new_dice.textContent = roll;
+                    place = element["select"].indexOf(roll);
+                    if(place != -1){
+                        new_dice.style.backgroundColor = "red";
+                        element["select"].splice(place,1);
+                    }else{
+                        new_dice.style.backgroundColor = "white";
+                    }
+                    console.log(new_dice);
+                    new_line.appendChild(new_dice);
+                });
+                document.getElementById("opponent_dices").appendChild(new_line);
+                var select_score = document.createElement("p");
+                select_score.textContent = element["select_score"];
+                document.getElementById("opponent_dices").appendChild(select_score);
+            });
+        }
+    </script>
+</body>
+</html>
