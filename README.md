@@ -1,4 +1,4 @@
-# Welcome to DiceKingofSkalits ！
+# Welcome to DiceKingofSkalits !
 - It's a dice game inspired by Kindom Come:Deliverance 2 by Warhorse, developed by tomhzl(hezl22@mails.tsinghua.edu.cn). 
 - The game is based on Python Flask framework.
 - To deploy game, run:

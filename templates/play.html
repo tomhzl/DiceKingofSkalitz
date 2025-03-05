@@ -4,8 +4,11 @@
     <title>Play</title>
 </head>
 <body>
-    <div style="display: flex;flex-direction: column;">
-        <div>
+    <div style="display: flex;flex-direction: column;border-color: black; border-width: 1px; border-style: solid; width: 500px; height: 250px; align-self: center;">
+        <div id="opponent_dices" style="display: flex;flex-direction: column; overflow: auto;"></div>
+    </div>
+    <div style="display: flex;flex-direction: column;border-color: black; border-width: 1px; border-style: solid; width: 500px; height: 250px; align-self: center;">
+        <div style="align-self: center;">
             <button id="0" onclick="select_dice(0)"></button>
             <button id="1" onclick="select_dice(1)"></button>
             <button id="2" onclick="select_dice(2)"></button>
@@ -15,24 +18,24 @@
             <button onclick="select()">Select</button>
             <button onclick="stop()">Stop</button>
         </div>
-        <div style="display: flex;flex-direction:row ;">
-            score:
-            <div id="score">0</div>
-        </div>
-        <div style="display: flex;flex-direction:row ;">
-            turn score:
-            <div id="turn_score">0</div>
-        </div>
-        <div style="display: flex;flex-direction:row ;">
-            opponent score:
-            <div id="opponent_score">0</div>
-        </div>
-        <div style="display: flex;flex-direction:row ;">
-            opponent turn score:
-            <div id="opponent_turn_score">0</div>
-        </div>
-        <div id="opponent_dices" style="display: flex;flex-direction: column;"></div>
     </div>
+    <div style="display: flex;flex-direction:row ;">
+        score:
+        <div id="score">0</div>
+    </div>
+    <div style="display: flex;flex-direction:row ;">
+        turn score:
+        <div id="turn_score">0</div>
+    </div>
+    <div style="display: flex;flex-direction:row ;">
+        opponent score:
+        <div id="opponent_score">0</div>
+    </div>
+    <div style="display: flex;flex-direction:row ;">
+        opponent turn score:
+        <div id="opponent_turn_score">0</div>
+    </div>
+    
     
     <script>
         var name = window.location.search.substring(1).split('=')[1];
@@ -187,6 +190,7 @@
                 var new_line = document.createElement("div");
                 new_line.style.display = "flex";
                 new_line.style.flexDirection = "row";
+                new_line.style.justifyContent = "center";
                 element["roll"].forEach(roll => {
                     var new_dice = document.createElement("button");
                     new_dice.textContent = roll;
@@ -203,6 +207,7 @@
                 document.getElementById("opponent_dices").appendChild(new_line);
                 var select_score = document.createElement("p");
                 select_score.textContent = element["select_score"];
+                select_score.style.alignSelf = "center";
                 document.getElementById("opponent_dices").appendChild(select_score);
             });
         }

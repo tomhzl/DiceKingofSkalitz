@@ -325,7 +325,7 @@ class AIPlayer(Player):
                 print("score:", score, "total", turn_score)
                 turn_data["process"].append(data)
                 # 如果剩余骰子数量小于等于2，则结束当前回合
-                if remain <= 2:
+                if remain <= 2 and remain > 0:
                     break
             else:
                 # 如果骰子不能继续选择，则当前回合得分置为0，并结束当前回合
